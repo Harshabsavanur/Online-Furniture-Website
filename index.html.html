@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Furniverse Decor | Modern Heritage</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GLOBAL VARIABLES --- */
+        :root {
+            --primary-color: #1a1a1a;
+            --accent-color: #8D6E63; 
+            --bg-light: #fdfcf8;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #1a1a1a;
+            --header-bg: rgba(26, 26, 26, 0.98);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Poppins', sans-serif;
+        }
+
+        /* --- RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: var(--font-body); 
+            line-height: 1.7; 
+            color: var(--text-main); 
+            background-color: var(--bg-light); 
+            overflow-x: hidden; 
+            min-height: 100vh;
+        }
+
+        /* --- UI HELPERS --- */
+        .hide { display: none !important; }
+        .view-section { animation: fadeIn 0.5s ease-out; display: none; padding-bottom: 60px; }
+        .view-section.active { display: block; }
+        
+        .btn-main { 
+            background: var(--primary-color); color: white; border: none; padding: 12px 30px; 
+            font-family: var(--font-body); text-transform: uppercase; letter-spacing: 1px; 
+            cursor: pointer; transition: 0.3s; border-radius: 4px; font-weight: 500;
+        }
+        .btn-main:hover { background: var(--accent-color); }
+
+        /* --- LOGIN SCREEN --- */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .login-box {
+            background: rgba(255, 255, 255, 0.95); padding: 40px 50px;
+            border-radius: 12px; width: 90%; max-width: 400px; text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+        .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; }
+
+        /* --- HEADER --- */
+        header { background: var(--header-bg); padding: 1rem 0; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(197, 160, 89, 0.2); }
+        .container { width: 92%; max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; color: var(--accent-color); text-transform: uppercase; font-weight: 800; border: 2px solid var(--accent-color); padding: 5px 15px; letter-spacing: 2px; cursor: pointer; }
+        nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 20px; }
+        nav ul li a { color: #fff; text-decoration: none; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; cursor: pointer; }
+        nav ul li a:hover, nav ul li a.active-link { color: var(--accent-color); }
+
+        /* --- HERO --- */
+        .hero-main { height: 85vh; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=2000'); background-size: cover; background-position: center; background-attachment: fixed; color: white; }
+        .hero-small { height: 40vh; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000'); background-size: cover; background-position: center; color: white; }
+        .hero-content h1 { font-family: var(--font-heading); font-size: 3.5rem; margin-bottom: 15px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); font-weight: 600; color: white; }
+
+        /* --- CATALOG STYLES --- */
+        .controls-container { width: 90%; max-width: 1200px; margin: -50px auto 30px; display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; z-index: 10; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px; width: 90%; max-width: 1200px; margin: 0 auto; }
+        .product-card { background: white; border-radius: 10px; overflow: hidden; transition: 0.3s; border: 1px solid #eee; position: relative; }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .product-card img { width: 100%; height: 250px; object-fit: cover; }
+        .product-details { padding: 20px; text-align: center; }
+        .wish-icon { position: absolute; top: 15px; right: 15px; background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s; z-index: 5; }
+        .wish-icon.active { color: red; }
+
+        /* --- FORMS --- */
+        .form-container { width: 90%; max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: var(--font-body); }
+
+        /* --- REVIEWS --- */
+        .reviews-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 90%; max-width: 1200px; margin: 0 auto; }
+        .review-card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .review-header { display: flex; align-items: center; margin-bottom: 15px; }
+        .review-avatar { width: 40px; height: 40px; background: var(--accent-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; }
+
+        /* --- MODALS --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal.show { display: flex; }
+        .modal-content { background: white; padding: 30px; width: 500px; max-width: 90%; border-radius: 10px; position: relative; max-height: 85vh; overflow-y: auto; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; background: none; border: none; }
+        
+        /* TRACKING TIMELINE */
+        .tracking-status { display: none; margin-top: 20px; text-align: center; }
+        .timeline { display: flex; justify-content: space-between; margin-top: 30px; position: relative; }
+        .timeline::before { content: ''; position: absolute; top: 15px; left: 0; width: 100%; height: 3px; background: #eee; z-index: 0; }
+        .timeline-step { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: 33%; }
+        .dot { width: 30px; height: 30px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #777; transition: 0.3s; }
+        .dot.active { background: var(--accent-color); color: white; }
+        .step-text { margin-top: 10px; font-size: 0.8rem; color: #777; }
+        .step-text.active { color: var(--primary-color); font-weight: bold; }
+
+        /* AI Chat */
+        #ai-btn { position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; cursor: pointer; z-index: 2500; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.3s; }
+        .ai-window { display: none; position: fixed; bottom: 100px; left: 30px; width: 320px; background: white; border-radius: 15px; z-index: 2500; box-shadow: 0 15px 40px rgba(0,0,0,0.3); overflow: hidden; border: 1px solid #eee; }
+
+        /* --- FOOTER --- */
+        footer { background: #111; color: #777; padding: 60px 0; margin-top: auto; font-size: 0.9rem; }
+        .footer-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 30px; width: 90%; max-width: 1200px; margin: 0 auto; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h1 style="margin-bottom: 5px; color: var(--accent-color);">Furniverse</h1>
+            <p style="margin-bottom: 30px; color:#555;">Interior Elegance</p>
+            <form id="loginForm">
+                <input type="text" class="login-input" id="username" placeholder="Full Name" required>
+                <input type="email" class="login-input" placeholder="Email Address" required>
+                <button type="submit" id="login-submit-btn" class="btn-main" style="width:100%;">Enter Store</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" class="hide">
+        
+        <header>
+            <div class="container">
+                <div class="logo" onclick="switchView('home')">Furniverse</div>
+                <nav>
+                    <ul>
+                        <li><a onclick="switchView('home')" id="nav-home">Home</a></li>
+                        <li><a onclick="switchView('catalog')" id="nav-catalog">Catalog</a></li>
+                        <li><a onclick="switchView('sell')" id="nav-sell">Sell Product</a></li>
+                        <li><a onclick="toggleModal('track-modal')">Track Order</a></li>
+                        <li><a onclick="switchView('why')" id="nav-why">Why Us</a></li>
+                        <li><a onclick="switchView('care')" id="nav-care">Contact</a></li>
+                        <li><a onclick="toggleModal('cart-modal')" style="color:white;">Cart (<span id="cart-count">0</span>)</a></li>
+                        <li><a onclick="toggleModal('wish-modal')" style="color:white;">♥</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <div id="view-home" class="view-section active">
+            <section class="hero-main">
+                <div class="hero-content">
+                    <h1>Art of Living</h1>
+                    <p style="font-size: 1.2rem; margin-bottom: 30px; color:white;">Curated furniture for the modern connoisseur.</p>
+                    <button class="btn-main" onclick="switchView('catalog')">Discover Collection</button>
+                </div>
+            </section>
+            
+            <div style="text-align: center; padding: 80px 0;">
+                <h2 style="margin-bottom: 40px; font-family: var(--font-heading);">Explore by Room</h2>
+                <div class="container" style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center;">
+                    <div style="position:relative; width:300px; height:200px; overflow:hidden; border-radius:10px; cursor:pointer;" onclick="filterCatalog('Sofas')">
+                        <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500" style="width:100%; height:100%; object-fit:cover;">
+                        <div style="position:absolute; bottom:10px; left:10px; color:white; font-weight:bold; font-size:1.2rem; text-shadow:0 2px 5px black;">Living Room</div>
+                    </div>
+                    <div style="position:relative; width:300px; height:200px; overflow:hidden; border-radius:10px; cursor:pointer;" onclick="filterCatalog('Dining')">
+                        <img src="https://images.unsplash.com/photo-1617806118233-f8e187f42894?w=500" style="width:100%; height:100%; object-fit:cover;">
+                        <div style="position:absolute; bottom:10px; left:10px; color:white; font-weight:bold; font-size:1.2rem; text-shadow:0 2px 5px black;">Dining</div>
+                    </div>
+                    <div style="position:relative; width:300px; height:200px; overflow:hidden; border-radius:10px; cursor:pointer;" onclick="filterCatalog('Beds')">
+                        <img src="https://images.unsplash.com/photo-1505693419148-ad30b057116a?w=500" style="width:100%; height:100%; object-fit:cover;">
+                        <div style="position:absolute; bottom:10px; left:10px; color:white; font-weight:bold; font-size:1.2rem; text-shadow:0 2px 5px black;">Bedroom</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-catalog" class="view-section">
+            <section class="hero-small">
+                <div class="hero-content">
+                    <h1>Our Collection</h1>
+                    <p style="color:white;">Handpicked pieces for your legacy.</p>
+                </div>
+            </section>
+
+            <div class="controls-container">
+                <input type="text" id="search-input" placeholder="Search furniture..." style="padding:10px; border:1px solid #ddd; border-radius:4px; flex:1;" oninput="renderProducts()">
+                <select id="category-filter" style="padding:10px; border:1px solid #ddd; border-radius:4px;" onchange="renderProducts()">
+                    <option value="All">All Categories</option>
+                    <option value="Sofas">Sofas</option>
+                    <option value="Dining">Dining</option>
+                    <option value="Beds">Beds</option>
+                    <option value="Chairs">Chairs</option>
+                </select>
+                <select id="sort-filter" style="padding:10px; border:1px solid #ddd; border-radius:4px;" onchange="renderProducts()">
+                    <option value="featured">Featured</option>
+                    <option value="low">Price: Low to High</option>
+                    <option value="high">Price: High to Low</option>
+                </select>
+            </div>
+
+            <div class="product-grid" id="product-list">
+                </div>
+        </div>
+
+        <div id="view-sell" class="view-section">
+            <section class="hero-small" style="background-image: url('https://images.unsplash.com/photo-1592078615290-033ee584e267?w=1600');">
+                <div class="hero-content">
+                    <h1>Sell Your Furniture</h1>
+                    <p style="color:white;">List your exquisite pieces on Furniverse.</p>
+                </div>
+            </section>
+            <div class="form-container" style="margin-top: 50px;">
+                <h2 style="text-align:center; margin-bottom:30px;">Product Details</h2>
+                <form onsubmit="event.preventDefault(); alert('Product listed for review!'); this.reset();">
+                    <div class="form-group"><label>Product Name</label><input type="text" required></div>
+                    <div class="form-group"><label>Description</label><textarea rows="4" required></textarea></div>
+                    <div class="form-group"><label>Price (₹)</label><input type="number" required></div>
+                    <div class="form-group"><label>Upload Image</label><input type="file" accept="image/*" required></div>
+                    <button class="btn-main" style="width:100%;">Submit Listing</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-why" class="view-section">
+            <section class="hero-small" style="background-image: url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1600');">
+                <div class="hero-content">
+                    <h1>Why Furniverse?</h1>
+                    <p style="color:white;">Designing personalities, not just spaces.</p>
+                </div>
+            </section>
+            <div class="container" style="padding: 60px 0; display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:50px;">
+                <div style="background: white; padding: 40px; border: 2px solid var(--accent-color); border-radius: 10px;">
+                    <h3 style="color:var(--accent-color);">Bespoke Living</h3>
+                    <ul style="list-style: none; margin-top: 20px;">
+                        <li style="margin-bottom:15px;">✓ <strong>100% Customization:</strong> Designed for your floor plan.</li>
+                        <li style="margin-bottom:15px;">✓ <strong>Unique Aesthetic:</strong> No two homes look the same.</li>
+                        <li style="margin-bottom:15px;">✓ <strong>In-House Quality:</strong> No third-party margins.</li>
+                    </ul>
+                </div>
+                <div style="background: #eee; padding: 40px; border-radius: 10px;">
+                    <h3>Catalog Companies</h3>
+                    <ul style="list-style: none; margin-top: 20px; color: #666;">
+                        <li style="margin-bottom:15px;">✕ <strong>Cookie-Cutter:</strong> Generic templates.</li>
+                        <li style="margin-bottom:15px;">✕ <strong>Outsourced:</strong> Varying quality standards.</li>
+                        <li style="margin-bottom:15px;">✕ <strong>Hidden Costs:</strong> Multiple middle-men.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-reviews" class="view-section">
+            <section class="hero-small">
+                <div class="hero-content">
+                    <h1>Customer Love</h1>
+                    <p style="color:white;">What Davangere is saying about us.</p>
+                </div>
+            </section>
+            <div class="reviews-grid" style="margin-top: 60px;">
+                <div class="review-card">
+                    <div class="review-header"><div class="review-avatar">H</div><div><h4 style="margin:0;">Harsha B.S</h4><div style="color:gold;">★★★★★</div></div></div>
+                    <p>"Absolutely love my new dining table! The craftsmanship is top-notch."</p>
+                </div>
+                <div class="review-card">
+                    <div class="review-header"><div class="review-avatar">C</div><div><h4 style="margin:0;">Chetan Kumar</h4><div style="color:gold;">★★★★★</div></div></div>
+                    <p>"The sofa I purchased is incredibly comfortable. Furniverse has a great selection."</p>
+                </div>
+                <div class="review-card">
+                    <div class="review-header"><div class="review-avatar">S</div><div><h4 style="margin:0;">Samrudh R.U</h4><div style="color:gold;">★★★★☆</div></div></div>
+                    <p>"Beautiful bedroom set! Easy to assemble. Highly recommend."</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-care" class="view-section">
+            <section class="hero-small">
+                <div class="hero-content">
+                    <h1>Here to Help</h1>
+                </div>
+            </section>
+            <div class="container" style="margin-top: 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px;">
+                <div>
+                    <h2>Contact Us</h2>
+                    <p style="margin-bottom: 20px;"><strong>Email:</strong> support@furniverse.com</p>
+                    <p style="margin-bottom: 20px;"><strong>Phone:</strong> +91 9758462856</p>
+                    <p><strong>Address:</strong> GMU College, Davangere City</p>
+                    <div style="margin-top: 30px;">
+                        <h3>Terms & Conditions</h3>
+                        <div style="height: 200px; overflow-y: auto; background: #fff; padding: 15px; border: 1px solid #ddd; font-size: 0.9rem;">
+                            <p><strong>1. Use of Site:</strong> You agree not to use the site for unlawful activities.</p>
+                            <p><strong>2. Returns:</strong> Items can be returned within 30 days if undamaged.</p>
+                            <p><strong>3. Shipping:</strong> We aim to deliver within 5-7 business days in Karnataka.</p>
+                            <p><strong>4. Privacy:</strong> Your data is secure with us.</p>
+                        </div>
+                    </div>
+                </div>
+                <form class="form-container" style="width: 100%; margin:0; box-shadow:none; border:1px solid #ddd;" onsubmit="event.preventDefault(); alert('Message sent!');">
+                    <h3>Send a Message</h3>
+                    <div class="form-group"><input type="text" placeholder="Name"></div>
+                    <div class="form-group"><input type="email" placeholder="Email"></div>
+                    <div class="form-group"><textarea rows="5" placeholder="Message"></textarea></div>
+                    <button class="btn-main">Send</button>
+                </form>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-grid">
+                <div style="flex:1; min-width: 250px;">
+                    <h3 style="color:var(--accent-color);">Furniverse</h3>
+                    <p>Excellence in furniture design. Curated collections for modern living in Davangere.</p>
+                </div>
+                <div style="flex:1; min-width: 200px;">
+                    <h4 style="color:white; margin-bottom:15px;">Quick Links</h4>
+                    <ul style="list-style: none;">
+                        <li><a onclick="switchView('catalog')" style="cursor:pointer; color:#777;">Catalog</a></li>
+                        <li><a onclick="switchView('sell')" style="cursor:pointer; color:#777;">Sell Product</a></li>
+                        <li><a onclick="switchView('care')" style="cursor:pointer; color:#777;">Help Center</a></li>
+                    </ul>
+                </div>
+                <div style="flex:1; min-width: 200px;">
+                    <h4 style="color:white; margin-bottom:15px;">Contact</h4>
+                    <p>support@furniverse.com</p>
+                    <p>+91 9758462856</p>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 40px;">&copy; 2025 Furniverse Decor. All rights reserved.</p>
+        </footer>
+
+        <button id="ai-btn" onclick="toggleAI()">✨</button>
+        <div id="ai-window" class="ai-window">
+            <div style="background: var(--accent-color); color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between;">
+                <span>Furni AI</span><span onclick="toggleAI()" style="cursor: pointer;">&times;</span>
+            </div>
+            <div id="ai-chat" style="height: 200px; padding: 15px; overflow-y: auto; font-size: 0.85rem; background: #f9f9f9;">
+                <div><b>AI:</b> Hello! Ask me about sofas, prices, or shipping.</div>
+            </div>
+            <div style="padding: 10px; border-top: 1px solid #ddd; display: flex;">
+                <input type="text" id="ai-input" placeholder="Type here..." style="flex:1; border:1px solid #ddd; padding: 5px; border-radius: 4px;">
+                <button onclick="aiAsk()" style="background:var(--accent-color); color:white; border:none; padding:5px 10px; border-radius:4px; margin-left: 5px; cursor:pointer;">Send</button>
+            </div>
+        </div>
+
+        <div id="cart-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="toggleModal('cart-modal')">&times;</button>
+                <h2>Shopping Bag</h2>
+                <div id="cart-items" style="margin: 20px 0;">Your bag is empty.</div>
+                <div style="border-top: 1px solid #ddd; padding-top: 15px; font-weight: bold; font-size: 1.2rem;">
+                    Total: <span id="cart-total" style="color: var(--accent-color);">₹0</span>
+                </div>
+                <button class="btn-main" style="width: 100%; margin-top: 20px;" onclick="openCheckout()">Checkout</button>
+            </div>
+        </div>
+
+        <div id="checkout-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="toggleModal('checkout-modal')">&times;</button>
+                <h2 style="margin-bottom:20px;">Secure Checkout</h2>
+                <div id="checkout-total-display" style="margin-bottom:20px; font-weight:bold; color:var(--accent-color); text-align:center; font-size:1.2rem;"></div>
+                
+                <form onsubmit="processOrder(event)">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" required placeholder="Receiver's Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Shipping Address</label>
+                        <textarea rows="3" required placeholder="House No, Street, City, Pincode"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select required>
+                            <option value="cod">Cash on Delivery</option>
+                            <option value="card">Credit/Debit Card</option>
+                            <option value="upi">UPI / GPay / PhonePe</option>
+                        </select>
+                    </div>
+                    <button class="btn-main" style="width: 100%;">Place Order</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="track-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="toggleModal('track-modal')">&times;</button>
+                <h2 style="margin-bottom:20px;">Track Order</h2>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="track-input" placeholder="Enter Order ID (e.g., ORD-123456)" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:4px;">
+                    <button class="btn-main" style="padding:10px 20px;" onclick="trackOrder()">Track</button>
+                </div>
+                
+                <div id="track-status" class="tracking-status">
+                    <p style="margin-top:20px; font-size:1.1rem;">Status for <strong id="display-order-id"></strong></p>
+                    <div class="timeline">
+                        <div class="timeline-step">
+                            <div class="dot active">✓</div>
+                            <div class="step-text active">Placed</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="dot active">✓</div>
+                            <div class="step-text active">Shipped</div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="dot"></div>
+                            <div class="step-text">Delivered</div>
+                        </div>
+                    </div>
+                    <p style="margin-top:20px; color:#555;">Expected Delivery: <strong>2 Days</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="wish-modal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn" onclick="toggleModal('wish-modal')">&times;</button>
+                <h2>My Wishlist</h2>
+                <div id="wish-items" style="margin: 20px 0;">No items yet.</div>
+            </div>
+        </div>
+
+    </div> <script>
+        // --- DATA ---
+        const products = [
+            { id: 1, category: "Sofas", name: "Modern Heritage Sofa", price: 30000, img: "https://ii1.pepperfry.com/assets/d73273b2-3b75-4975-a949-8931f397b9d2.jpg" },
+            { id: 2, category: "Dining", name: "Royal Dining Table", price: 15000, img: "https://ii1.pepperfry.com/assets/b0d126d3-2002-487e-b440-8d485d7e0539.jpg" },
+            { id: 3, category: "Beds", name: "Queen Sheesham Bed", price: 47999, img: "https://ebansal.com/cdn/shop/files/Olivia_Solid_Sheesham_Wood_Bed_With_Four_Drawers_Queen_Size_Natural_Finish.jpg?v=1745910757" },
+            { id: 4, category: "Chairs", name: "Accent Armchair", price: 4499, img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=400&auto=format&fit=crop" },
+            { id: 5, category: "Office", name: "Executive Desk", price: 8999, img: "https://thetimberguy.com/cdn/shop/products/Buy-Wooden-Study-table-Writing-table-Desk-for-Modern-Home_600x.jpg?v=1739470075" },
+            { id: 6, category: "Chairs", name: "Minimalist Chair", price: 2999, img: "https://www.gorevizon.com/wp-content/uploads/2020/12/1-3.jpg" },
+            { id: 7, category: "Beds", name: "Classic Wardrobe", price: 29999, img: "https://ik.imagekit.io/2xkwa8s1i/img/wardrobes/r1/WWRB4DH1GINGHAMCWR1/1.jpg?tr=w-3840" },
+            { id: 8, category: "Sofas", name: "Velvet Lounge", price: 25000, img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500" }
+        ];
+
+        let cart = [];
+        let wishlist = [];
+        let lastOrderId = ""; // To store the last generated order
+
+        // --- AUTH LOGIC ---
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('username').value;
+            if(name) {
+                const btn = document.getElementById('login-submit-btn');
+                btn.textContent = "Authenticating...";
+                setTimeout(() => {
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('main-app').classList.remove('hide');
+                    renderProducts(); 
+                    btn.textContent = "Enter Store";
+                    alert(`Welcome to Furniverse, ${name}!`);
+                }, 800);
+            }
+        });
+
+        // --- NAVIGATION ---
+        function switchView(viewId) {
+            window.scrollTo(0,0);
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(el => el.classList.remove('active-link'));
+            const target = document.getElementById(`view-${viewId}`);
+            if(target) target.classList.add('active');
+            const navLink = document.getElementById(`nav-${viewId}`);
+            if(navLink) navLink.classList.add('active-link');
+        }
+
+        function filterCatalog(category) {
+            switchView('catalog');
+            document.getElementById('category-filter').value = category;
+            renderProducts();
+        }
+
+        // --- CATALOG ---
+        function renderProducts() {
+            const list = document.getElementById('product-list');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const cat = document.getElementById('category-filter').value;
+            const sort = document.getElementById('sort-filter').value;
+
+            list.innerHTML = '';
+
+            let filtered = products.filter(p => {
+                return (cat === 'All' || p.category === cat) &&
+                       (p.name.toLowerCase().includes(search));
+            });
+
+            if (sort === 'low') filtered.sort((a,b) => a.price - b.price);
+            if (sort === 'high') filtered.sort((a,b) => b.price - a.price);
+
+            filtered.forEach(p => {
+                const isWish = wishlist.includes(p.id) ? 'active' : '';
+                const card = `
+                <div class="product-card">
+                    <div class="wish-icon ${isWish}" onclick="toggleWish(${p.id})">♥</div>
+                    <img src="${p.img}" alt="${p.name}">
+                    <div class="product-details">
+                        <small style="color: var(--accent-color); text-transform:uppercase;">${p.category}</small>
+                        <h3 style="font-size: 1.1rem; margin: 5px 0;">${p.name}</h3>
+                        <div style="font-weight:bold; font-size:1.2rem; margin-bottom:10px;">₹${p.price.toLocaleString()}</div>
+                        <button class="btn-main" style="width:100%; font-size:0.8rem;" onclick="addToCart(${p.id})">Add to Bag</button>
+                    </div>
+                </div>`;
+                list.innerHTML += card;
+            });
+        }
+
+        // --- CART & ORDER LOGIC ---
+        function addToCart(id) {
+            const p = products.find(x => x.id === id);
+            cart.push(p);
+            updateCart();
+            alert(`${p.name} added to cart!`);
+        }
+
+        function updateCart() {
+            document.getElementById('cart-count').textContent = cart.length;
+            const cartList = document.getElementById('cart-items');
+            
+            if(cart.length === 0) {
+                cartList.innerHTML = "Your bag is empty.";
+                document.getElementById('cart-total').textContent = "₹0";
+            } else {
+                cartList.innerHTML = "";
+                let total = 0;
+                cart.forEach((item) => {
+                    total += item.price;
+                    cartList.innerHTML += `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                            <span>${item.name}</span>
+                            <span>₹${item.price.toLocaleString()}</span>
+                        </div>
+                    `;
+                });
+                document.getElementById('cart-total').textContent = "₹" + total.toLocaleString();
+            }
+        }
+
+        function openCheckout() {
+            if(cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            toggleModal('cart-modal'); 
+            toggleModal('checkout-modal');
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('checkout-total-display').textContent = "Total Amount: ₹" + total.toLocaleString();
+        }
+
+        function processOrder(e) {
+            e.preventDefault();
+            // Generate Fake Order ID
+            const orderId = "ORD-" + Math.floor(Math.random() * 900000 + 100000);
+            lastOrderId = orderId; // Save it to verify in tracking
+            
+            alert(`Order Placed Successfully!\n\nOrder ID: ${orderId}\n(Save this ID to track your order!)`);
+            
+            cart = [];
+            updateCart();
+            toggleModal('checkout-modal');
+        }
+
+        // --- TRACKING LOGIC ---
+        function trackOrder() {
+            const inputId = document.getElementById('track-input').value.trim();
+            const statusDiv = document.getElementById('track-status');
+            
+            if(inputId === "") {
+                alert("Please enter an Order ID");
+                return;
+            }
+
+            // Simple logic: if matches the last generated ID OR if it starts with ORD
+            // This makes it feel real for the user testing it
+            if(inputId === lastOrderId || inputId.startsWith("ORD")) {
+                document.getElementById('display-order-id').textContent = inputId;
+                statusDiv.style.display = "block";
+            } else {
+                alert("Order ID not found. Please check and try again.");
+                statusDiv.style.display = "none";
+            }
+        }
+
+        // --- WISHLIST ---
+        function toggleWish(id) {
+            if(wishlist.includes(id)) {
+                wishlist = wishlist.filter(x => x !== id);
+            } else {
+                wishlist.push(id);
+            }
+            renderProducts();
+            updateWishModal();
+        }
+
+        function updateWishModal() {
+            const div = document.getElementById('wish-items');
+            if(wishlist.length === 0) div.innerHTML = "No items yet.";
+            else {
+                div.innerHTML = "";
+                wishlist.forEach(id => {
+                    const p = products.find(x => x.id === id);
+                    div.innerHTML += `<div style="margin-bottom:10px;">${p.name}</div>`;
+                });
+            }
+        }
+
+        function toggleModal(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('show');
+        }
+
+        // --- AI CHAT ---
+        function toggleAI() {
+            const win = document.getElementById('ai-window');
+            win.style.display = win.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function aiAsk() {
+            const input = document.getElementById('ai-input');
+            const chat = document.getElementById('ai-chat');
+            const txt = input.value.toLowerCase();
+            
+            if(!txt) return;
+
+            chat.innerHTML += `<div style="text-align:right; margin:5px 0;"><b>You:</b> ${input.value}</div>`;
+            
+            let res = "I'm sorry, I didn't catch that.";
+            if(txt.includes('sofa')) res = "Our sofas start at ₹25,000. Check the Catalog!";
+            else if(txt.includes('price') || txt.includes('cheap')) res = "Sort by 'Low to High' in the catalog to find deals.";
+            else if(txt.includes('hello')) res = "Hello! How can I help you decorate today?";
+            else if(txt.includes('return')) res = "We have a 30-day return policy.";
+
+            setTimeout(() => {
+                chat.innerHTML += `<div style="text-align:left; margin:5px 0; color: var(--accent-color);"><b>AI:</b> ${res}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 500);
+            
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
